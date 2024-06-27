@@ -30,14 +30,10 @@ class  DataExtractor(DatabaseConnector):
         
         # .get_tables_names returns a list of table names.
         tables = inspector.get_table_names()
-        #print(tables)
         return tables
     
     def read_rds_table(self, table_name):
-        # print("table names are:", tables) 
-        # return tables
         engine = self.init_db_engine() 
-        #print("Connected engine is:", engine) 
         
         '''
         sqlalchemy read_sql_table function is used to read a SQL database table directly into a pandas
@@ -50,27 +46,20 @@ class  DataExtractor(DatabaseConnector):
     def retrieve_pdf_data(self, pdf_link):
         df_pdf = tb.read_pdf(pdf_link, multiple_tables=True , pages = "all")
             
-        #Getting the dataframe of df_pdf which is a list type
+        #Getting the dataframe of df_pdf which is a list type.
         df_pdf = pd.concat(df_pdf)
-        
-        # print("Customer's Card Details Table:\n")
-        # print(df_pdf)
-        # card_expiry_date = df_card_details["expiry_date"]
-        # print(type(card_expiry_date))
         return df_pdf
     
     
     
-    # Extracting data from an Endpoint with Key
+    # Extracting data from an Endpoint with APIKey
     def list_number_of_stores(self,endpoint,apikey):
-        response = requests.get(endpoint, headers=apikey) 
-        #print("Endpoint calling:",response.status_code)
+        response = requests.get(endpoint, headers=apikey)
         
         api_data = response.text  #api_data is 'str' type
         
         # Parsing api_data with json.loads() that returns a type 'list' 
         parse_json = json.loads(api_data)
-        #print(parse_json)
         number_stores = parse_json['number_stores']
         return number_stores
     
@@ -107,6 +96,7 @@ class  DataExtractor(DatabaseConnector):
         if bucket_name!='data-handling-public':
             bucket_name = bucket_name.split('.')[0]
         print(bucket_name)
+        
         # Create an S3 Object instance
         '''
         obj = s3.Object(bucket_name, file_key) initializes an S3 object instance but does not actually retrieve any data from S3. 
@@ -139,7 +129,7 @@ class  DataExtractor(DatabaseConnector):
     
 if __name__ == '__main__':
     extractor = DataExtractor()
-    #tables = extractor.list_db_tables()
+    tables = extractor.list_db_tables()
     table = "legacy_users"
     user_data = extractor.read_rds_table(table)
     #print("Extracted User Data with Pandas DataFrame\n", user_data)
