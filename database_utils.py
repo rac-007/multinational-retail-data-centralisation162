@@ -20,31 +20,15 @@ class DatabaseConnector:
         return db_creds
 
     def init_db_engine(self):
-        # for creating connection string
-        #connection_str = f’postgresql:// {user}:{password}@{host}:{port}/{database}’
-        # database_url = URL.create(
-        #     drivername=postgresql+psycopg2',
-        #     username=db_creds['RDS_USER'],
-        #     password=db_creds['RDS_PASSWORD'],
-        #     host=db_creds['RDS_HOST'],
-        #     port=db_creds['RDS_PORT'],
-        #     database=db_creds['RDS_DATABASE']
-        # )
         db_creds= self.read_db_creds()
         connection_str = (f"{'postgresql'}+{'psycopg2'}://{db_creds['RDS_USER']}:{db_creds['RDS_PASSWORD']}@{db_creds['RDS_HOST']}:{db_creds['RDS_PORT']}/{db_creds['RDS_DATABASE']}")
-        
-        
-        # Create the SQLAlchemy engine
+        # Create the SQLAlchemy engine.
         engine = create_engine(connection_str)
-        # insp = inspect(engine)
-        # tab = insp.get_table_names()
-        # print(type(tab))
-        # print(tab)
         #engine.connect()
         return engine
 
     def init_local_db_engine(self):
-        # for creating connection string for local database
+        # Creating connection string for the local database.
         db_creds= self.read_db_creds()
         connection_str = (f"{'postgresql'}+{'psycopg2'}://{db_creds['LOCAL_USER']}:{db_creds['LOCAL_PASSWORD']}@{db_creds['LOCAL_HOST']}:{db_creds['LOCAL_PORT']}/{db_creds['LOCAL_DATABASE']}")
         engine = create_engine(connection_str)
