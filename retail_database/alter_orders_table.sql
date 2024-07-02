@@ -25,8 +25,7 @@ ALTER TABLE orders_table
     ALTER COLUMN product_quantity TYPE SMALLINT;
 
 
-    
-
+-- Following error occured when adding Foreign Key with 'user_uuid'    
 -- ERROR:  Key (user_uuid)=(6904f151-6d32-4d1e-b477-41801a9a8e83) is not present in table "dim_users".insert or update on table "orders_table" violates foreign key constraint "orders_table_user_uuid_fkey" 
 
 -- ERROR:  insert or update on table "orders_table" violates foreign key constraint "orders_table_user_uuid_fkey"
