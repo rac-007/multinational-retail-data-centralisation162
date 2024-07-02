@@ -25,10 +25,8 @@
 <br>
 -Data Transformation: Convert the data into a format that is suitable for analysis, including handling various units of measurement.
 </br>
--Data Loading: Store the cleaned and transformed data in a centralized database.
-<br>
--Data Analysis: Provide tools and scripts for analyzing the centralized data.
-</b>
+-Data Loading: Store the cleaned and transformed data in a database.
+
 
 ## Components:
 ### Data Extraction
@@ -57,9 +55,9 @@
 
 ### Data Loading
 <br>
--Database Storage: Load the cleaned and transformed data into a centralized database.
+-Database Storage: Load the cleaned and transformed data into a database.
 </br>
--Data Backup: Implement backup strategies to ensure data safety and integrity.
+
 
 ### Getting Started
 ### Prerequisites

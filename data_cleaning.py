@@ -21,20 +21,10 @@ class DataCleaning():
         tables = extractor.list_db_tables()
         legacy_user_table = 'legacy_users'
         users_table = extractor.read_rds_table(legacy_user_table)
-        
-        
-        # Print the DataFrame before any cleaning
-        # print("Before cleaning:")
-        # total_rows_before = users_table.shape[0]
-        # print("Total number of rows:",total_rows_before)
        
         
         # Replace 'NULL' strings with NaN
         users_table.replace('NULL', np.NaN, inplace=True)
-        
-        # Print the DataFrame after replacing 'NULL' with NaN
-        # print("\nAfter replacing 'NULL' with NaN:")
-        # print(users_table)
         
         # Drop rows with NaN values in the specified columns
         users_table = users_table.dropna(subset=['date_of_birth', 'email_address', 'user_uuid'], how='any', axis=0, inplace=False)
@@ -43,6 +33,7 @@ class DataCleaning():
         # Convert date_of_birth  and join_date of object type into datetime
         try:
             users_table['date_of_birth'] = pd.to_datetime(users_table['date_of_birth'])
+
         except ValueError:
             # List of possible date formats
             date_formats = ['%Y %B %d', '%Y-%m-%d', '%Y/%m/%d']
@@ -83,37 +74,20 @@ class DataCleaning():
         '''
         users_table.to_csv("users.csv")
         
-        #total_rows_after = users_table.shape[0]
-        # print("After cleaning rows:",total_rows_after)
-        
-        #print(type(users_table))
-        
         return users_table  
     
-    # This method gets card_details from retrieve_pdf_data() method return value df_card_details 
+    # This method gets card_details from retrieve_pdf_data() method and return value df_card_details 
     def clean_card_data(self, card_details):
         card_details.replace('NULL', np.NaN, inplace=True)
         card_details.dropna(subset=['card_number'], how='any', axis=0, inplace=True)
         
-        # invalid_card_details = card_details['card_number'].str.contains('[a-zA-Z?]',na=False)
-        # valid_card_details =  ~invalid_card_details
-        
-        # Identifying invalid card numbers that containing [a-zA-Z?]
-        #card_details[~card_details['card_number'].str.contains('[a-zA-Z?]', na=False)]
         card_details.drop_duplicates(subset=['card_number', 'date_payment_confirmed'], keep='last', inplace=True)
-       
-        
-        # card_details['expiry_date'] = pd.to_datetime(card_details['expiry_date'], errors='coerce')
-        # card_details['date_payment_confirmed'] = pd.to_datetime(card_details['date_payment_confirmed'], errors='coerce')
         
         card_details.dropna(subset=['expiry_date', 'date_payment_confirmed'], inplace=True)
         
-
-        # print("Clean Card Details---->")
-        # x = card_details.isnull().sum()
-        # print(card_details)
-        # #card_details.to_csv("card_details.csv")
-        return card_details    
+        card_details.to_csv("card_details.csv")
+        return card_details  
+      
     def clean_store_data(self, store_data):
         store_data = store_data.reset_index(drop=True)
         store_data.replace('NULL', np.NaN, inplace=True)
@@ -122,7 +96,7 @@ class DataCleaning():
         
         # Drop rows with no address entry
         store_data.dropna(subset=['address'], how='any', axis=0, inplace=True)
-        #store_data(columns=['lat'], inplace=True)
+        
         store_data.dropna(axis=1, how='any', inplace=True)
        
         # .to_datetime type and assigns NaT for non-date entry
@@ -130,10 +104,6 @@ class DataCleaning():
         
         # Removes rows with NaT value 
         store_data.dropna(subset=['opening_date'], inplace=True)  
-             
-        # Remove rows with invalid or corrupted data in 'longitude' and 'latitude' columns
-        # store_data = store_data[~store_data['longitude'].str.contains('[a-zA-Z?]', na=False)]
-        # store_data = store_data[~store_data['latitude'].str.contains('[a-zA-Z?]', na=False)]
         
         # Convert 'longitude' and 'latitude' to numeric values
         store_data['longitude'] = pd.to_numeric(store_data['longitude'], errors='coerce')
@@ -149,19 +119,10 @@ class DataCleaning():
         store_data_copy = store_data.copy()
         store_data_copy['continent'] = store_data_copy['continent'].str.replace('eeEurope', 'Europe').str.replace('eeAmerica', 'America')
         store_data_copy.drop(store_data_copy.columns[0], axis=1, inplace=True) 
-        #store_data_copy = store_data_copy.reset_index(drop=True)
         
         # Return the cleaned DataFrame
-        #print(type(store_data['continent']))
-        print("------->>>>>\n",store_data_copy)
         return store_data_copy
 
-       
-        print("store_info:---->>>>\n",store_data)    
-        #store_data.info()
-        #store_data.describe()
-        
-        return
     
     # Product Data cleaning methods
     def convert_product_weights(self,x):
@@ -171,17 +132,10 @@ class DataCleaning():
         if pd.isnull(x) or not isinstance(x, str):
          return np.nan
         # Normalize the input (convert to lowercase and strip whitespace)
-        #x = x.lower().strip()
         x = x.lower().strip().replace(' .', '').strip()
-        #print(type(x))
         if 'kg' in x:
             x = x.replace('kg', '')
-            #print("inside if--1",x)
-            x = float(x)
-            #print(type(x))
-        # if 'l' in x:
-        #     x = x.replace('l', '')
-        #     x = float(x)            
+            x = float(x)         
         elif 'ml' in x:
             x = x.replace('ml', '')
             x = float(x)/1000
@@ -197,8 +151,6 @@ class DataCleaning():
             x = float(x) * 0.0283495  # Convert oz to kg        
         else:
             x= np.nan
-            #raise ValueError(f"Unexpected unit in weight: {x}")
-        #print(x)
         return x
     
     
@@ -211,25 +163,18 @@ class DataCleaning():
         df_product.dropna(subset=['date_added'],how = 'any', axis=0,inplace=True)
 
         # Working with weight column, it has values like [.,12X100,9chd005hg]
-        #remove_dot = lambda x:x.replace('.','')
-        #print(dot_remove)
-        #pd_df['weight']=pd_df['weight'].apply(remove_dot)
         # Removing 'X' multiplication sign
         wt_value_x = df_product.loc[df_product.weight.str.contains('x'),'weight'].str.split('x',expand=True)
-        #print(wt_value_x)
         numeric_cols = wt_value_x.apply(lambda x: pd.to_numeric(x.str.extract(r'(\d+\.?\d*)', expand=False)), axis=1)
-        #print(numeric_cols)
         final_weight = numeric_cols.prod(axis=1)
         df_product.loc[df_product.weight.str.contains('x'),'weight'] = final_weight
         to_lower_unit = lambda value:str(value).lower().strip()
 
         df_product['weight'] = df_product['weight'].apply(to_lower_unit) 
-        #print("------->>>",pd_df)
         df_product['weight'] = df_product['weight'].apply(lambda x: self.convert_product_weights(x))
         
         # Droping the unnamed column, containing duplicate index column values
-        df_product.drop(df_product.columns[0], axis=1, inplace=True) 
-        #display(df_product)  
+        df_product.drop(df_product.columns[0], axis=1, inplace=True)  
         return df_product
     
     
@@ -240,18 +185,14 @@ class DataCleaning():
         order_data_df.drop("1", axis=1, inplace=True)
         order_data_df.drop('first_name',axis=1, inplace=True)
         order_data_df.drop('last_name',axis=1, inplace=True)
-        #order_data_df.info()
-        #display(order_data_df)
         return order_data_df
     
     def clean_date_time(self,date_time_df):
         date_time_data['year']=pd.to_numeric(date_time_data['year'], errors='coerce')
-        #print((date_time_data['year']).dtype)
         date_time_data.dropna(subset=['year'], how='any', axis=0,inplace=True)
         return date_time_data
         
-        #print("------>>>>\n",date_time_df)
-        return
+        
 if __name__ == '__main__':
     cleaner = DataCleaning()
     extractor = DataExtractor()
