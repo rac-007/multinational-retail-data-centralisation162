@@ -26,17 +26,26 @@ class DataCleaning():
         # Replace 'NULL' strings with NaN
         users_table.replace('NULL', np.NaN, inplace=True)
         
-        
         # Drop rows with NaN values in the specified columns
         users_table = users_table.dropna(subset=['date_of_birth', 'email_address', 'user_uuid'], how='any', axis=0, inplace=False)
         
         
         # Convert date_of_birth  and join_date of object type into datetime
-        # Convert 'date_of_birth' to datetime without errors='ignore'
         try:
             users_table['date_of_birth'] = pd.to_datetime(users_table['date_of_birth'])
-        except ValueError as e:
-            print(f"Error parsing 'date_of_birth': {e}")
+
+        except ValueError:
+            # List of possible date formats
+            date_formats = ['%Y %B %d', '%Y-%m-%d', '%Y/%m/%d']
+            for fmt in date_formats:
+                try: 
+                    pd.to_datetime(users_table['date_of_birth'], format=fmt)
+                except ValueError :
+                # Return NaT (Not a Time) for invalid formats
+                #return pd.NaT
+                    #print(f"Error parsing 'date_of_birth': {e}")
+                    continue
+        #users_table['date_of_birth'] = pd.to_datetime(users_table['date_of_birth'], errors ='ignore')
         users_table['join_date'] = pd.to_datetime(users_table['join_date'], errors ='coerce')
         
         
