@@ -82,13 +82,18 @@ class DataCleaning():
         card_details.dropna(subset=['card_number'], how='any', axis=0, inplace=True)
         
         card_details.drop_duplicates(subset=['card_number', 'date_payment_confirmed'], keep='last', inplace=True)
+       
         
+        # card_details['expiry_date'] = pd.to_datetime(card_details['expiry_date'], errors='coerce')
+        card_details['date_payment_confirmed'] = pd.to_datetime(card_details['date_payment_confirmed'], errors='coerce')
+        #print("card details:----->>>",card_details['date_payment_confirmed'])
         card_details.dropna(subset=['expiry_date', 'date_payment_confirmed'], inplace=True)
         
         card_details.to_csv("card_details.csv")
         return card_details  
       
     def clean_store_data(self, store_data):
+        #store_data.info()
         store_data = store_data.reset_index(drop=True)
         store_data.replace('NULL', np.NaN, inplace=True)
         store_data.replace(['N/A', 'None'], np.NaN, inplace=True)
@@ -96,8 +101,8 @@ class DataCleaning():
         
         # Drop rows with no address entry
         store_data.dropna(subset=['address'], how='any', axis=0, inplace=True)
-        
-        store_data.dropna(axis=1, how='any', inplace=True)
+        #store_data(columns=['lat'], inplace=True)
+        #store_data.dropna(axis=1, how='any', inplace=True)
        
         # .to_datetime type and assigns NaT for non-date entry
         store_data['opening_date'] = pd.to_datetime(store_data['opening_date'], errors ='coerce')
@@ -107,11 +112,12 @@ class DataCleaning():
         
         # Convert 'longitude' and 'latitude' to numeric values
         store_data['longitude'] = pd.to_numeric(store_data['longitude'], errors='coerce')
+        #store_data['latitude'] = store_data['latitude'].replace('',np.NaN, inplace=True)
         store_data['latitude'] = pd.to_numeric(store_data['latitude'], errors='coerce')
-        
+        store_data['staff_numbers'] = pd.to_numeric(store_data['staff_numbers'], errors='coerce')
         # Drop rows where the conversion to numeric resulted in NaN
         store_data.dropna(subset=['longitude', 'latitude'], inplace=True)
-        
+        store_data.dropna(subset=['staff_numbers'],inplace=True)
         # Remove duplicates, keeping the last occurrence
         store_data.drop_duplicates(keep='last', inplace=True)
         
@@ -121,6 +127,8 @@ class DataCleaning():
         store_data_copy.drop(store_data_copy.columns[0], axis=1, inplace=True) 
         
         # Return the cleaned DataFrame
+        #print(type(store_data['continent']))
+        #print("------->>>>>\n",store_data_copy)
         return store_data_copy
 
     
