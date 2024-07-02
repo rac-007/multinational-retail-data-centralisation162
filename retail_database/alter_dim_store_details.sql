@@ -4,10 +4,6 @@ SELECT max(LENGTH(CAST(store_code AS TEXT))) AS max_store_code_length,
 	  max(LENGTH(CAST(country_code AS TEXT))) AS max_country_code_length
 FROM dim_store_details;
 
--- UPDATE dim_store_details 
--- SET longitude = NULL
--- WHERE longitude = '';
-
 
 
 -- Drop the 'lat' column as it's no longer needed
